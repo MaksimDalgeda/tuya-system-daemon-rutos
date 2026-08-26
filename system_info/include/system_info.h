@@ -4,16 +4,15 @@
 #define MAX_INTERFACES 10
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "system_info_errors.h"
-//#include "internal.h"
 
 typedef struct
 {
     char name[32];
     char ip[16];
     char netmask[16];
-
     uint64_t rx_bytes;
     uint64_t tx_bytes;
 
@@ -23,12 +22,10 @@ typedef struct
 {
     long total_ram_bytes;
     long free_ram_bytes;
-
     double cpu_usage_prcnt;
-
     long uptime_s;
-
     network_info_t network[MAX_INTERFACES];
+    size_t network_count;
 
 } system_info_t;
 

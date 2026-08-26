@@ -3,9 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "system_info.h"
 #include "internal.h"
-
 Error_Code get_cpu_usage(double *usage)
 {
     unsigned long long idle1;

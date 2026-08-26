@@ -1,8 +1,7 @@
 #include <sys/sysinfo.h>
 #include <stddef.h>
 
-#include "system_info.h"
-
+#include "internal.h"
 
 Error_Code get_ram_info(long *total_ram,long *free_ram)
 {
@@ -17,5 +16,5 @@ Error_Code get_ram_info(long *total_ram,long *free_ram)
     *total_ram = info.totalram;
     *free_ram = info.freeram;
 
-    return 0;
+    return OK;
 }

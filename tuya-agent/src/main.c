@@ -1,17 +1,14 @@
 #include <stdio.h>
 #include <syslog.h>
 
-#include "system_info.h"
+#include "tuya_agent_errors.h"
 
 int main(int argc, char *argv[])
-{
-    system_info_t info;
-    Error_Code ret;
+{   
+    //make daemon
 
-    ret = get_system_info(&info);
-
-    printf("\nRam total - %ld\nRam free - %ld\n", info.total_ram_bytes, info.free_ram_bytes);
-    printf("\nCPU usage - %.2f\n", info.cpu_usage_prcnt);
+    Error system_info_service_start(void);
     
-    return ret;
+
+    return 0;
 }
