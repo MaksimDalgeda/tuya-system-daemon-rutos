@@ -8,7 +8,10 @@ all:
 	$(MAKE) -C system_info
 	$(MAKE) -C tuya-agent
 
+TUYA_LIB := $(HOME)/Documents/Projects/tuya-iot-core-sdk-main/build/lib
+
 run: all
+	LD_LIBRARY_PATH=$(TUYA_LIB):$$LD_LIBRARY_PATH \
 	./tuya-agent/build/tuya-monitor-daemon
 
 build-lib:

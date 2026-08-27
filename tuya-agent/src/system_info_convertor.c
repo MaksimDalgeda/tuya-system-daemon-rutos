@@ -2,7 +2,6 @@
 #include "system_info_convertor.h"
 
 
-
 Error convert_system_info(system_info_t *info, tuya_system_info_t *message)
 {    
     Error err = OK_T;
@@ -13,23 +12,21 @@ Error convert_system_info(system_info_t *info, tuya_system_info_t *message)
     message->uptime_s=info->uptime_s;
     message->network_count =(info->network_count > MAX_INTERFACES_TUYA)? MAX_INTERFACES_TUYA: info->network_count;
 
-    for(size_t i = 0; i <message->network_count; i++){
+   for(size_t i = 0; i < message->network_count; i++) {
 
-        strncpy(message->network->name, info->network->name, sizeof(message->network->name) - 1);
-        message->network->name[sizeof(message->network->name) - 1] = '\0';
+    strncpy(message->network[i].name, info->network[i].name,  sizeof(message->network[i].name) - 1);
+    message->network[i].name[sizeof(message->network[i].name) - 1] = '\0';
 
-        strncpy(message->network->ip, info->network->ip, sizeof(message->network->ip) - 1);
-        message->network->ip[sizeof(message->network->ip) - 1] = '\0';
+    strncpy(message->network[i].ip, info->network[i].ip, sizeof(message->network[i].ip) - 1);
+    message->network[i].ip[sizeof(message->network[i].ip) - 1] = '\0';
 
-        strncpy(message->network->netmask, info->network->netmask, sizeof(message->network->netmask) - 1);
-        message->network->netmask[sizeof(message->network->netmask) - 1] = '\0';
+    strncpy(message->network[i].netmask, info->network[i].netmask, sizeof(message->network[i].netmask) - 1);
+    message->network[i].netmask[sizeof(message->network[i].netmask) - 1] = '\0';
 
+    message->network[i].rx_mb = convert_bytes_to_mb(info->network[i].rx_bytes);
 
-        message->network->rx_mb =convert_bytes_to_mb(info->network->rx_bytes);
-        message->network->tx_mb = convert_bytes_to_mb(info->network->tx_bytes);
-
-    }
-
+    message->network[i].tx_mb = convert_bytes_to_mb(info->network[i].tx_bytes);
+}
     return OK_T;
 
 }

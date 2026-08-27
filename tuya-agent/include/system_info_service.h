@@ -6,7 +6,7 @@
 #include <stddef.h>
 
 #include "tuya_agent_errors.h"
-
+#include "system_info.h"
 
 typedef struct
 {
@@ -29,7 +29,6 @@ typedef struct
 
 } tuya_system_info_t;
 
-Error system_info_service_start(void);
-
+Error system_info_service(system_info_t *info);
 
 #endif
