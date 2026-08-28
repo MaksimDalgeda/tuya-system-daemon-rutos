@@ -12,7 +12,7 @@ CPPFLAGS := \
     -I$(TUYA_SDK)/include \
     -I$(TUYA_SDK)/interface \
 	-I$(TUYA_SDK)/utils \
-	-I$(TUYA_SDK)/examples/custom_protocol_basic_demo
+	-I$(TUYA_SDK)/examples/custom_protocol_basic_demo \
     -D_POSIX_C_SOURCE=200809L
 
 SRC := $(wildcard src/*.c)

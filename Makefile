@@ -12,7 +12,12 @@ TUYA_LIB := $(HOME)/Documents/Projects/tuya-iot-core-sdk-main/build/lib
 
 run: all
 	LD_LIBRARY_PATH=$(TUYA_LIB):$$LD_LIBRARY_PATH \
-	./tuya-agent/build/tuya-monitor-daemon
+	./tuya-agent/build/tuya-monitor-daemon\
+		--device-id 269be577b3e64f5dbd95js\
+		--device-secret VBv8CcB8EdgffeLp\
+		--product-id smw2jne5ohpmq8t1\
+		#--daemon
+
 
 build-lib:
 	$(MAKE) -C system_info

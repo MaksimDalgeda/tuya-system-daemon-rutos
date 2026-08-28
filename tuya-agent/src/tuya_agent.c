@@ -1,23 +1,19 @@
 #include <stdio.h>
+#include <syslog.h>
 
-#include "tuyalink_core.h"
-
-#include "tuya_agent.h"
 #include "tuya_agent_errors.h"
+#include "tuyalink_core.h"
 #include "tuya_cacert.h"
+#include "system_info_service.h"
 
 static tuya_mqtt_context_t client;
 
-static const char deviceId[] = "269be577b3e64f5dbd95js";
-
-static const char deviceSecret[] = "VBv8CcB8EdgffeLp";
-
 static void on_connected(tuya_mqtt_context_t *context, void *user_data)
-{
+{   
     (void)context;
     (void)user_data;
 
-    printf("Connected to Tuya Cloud\n");
+    syslog(LOG_INFO, "Connected callback");
 }
 
 static void on_disconnect(tuya_mqtt_context_t *context, void *user_data)
@@ -25,32 +21,28 @@ static void on_disconnect(tuya_mqtt_context_t *context, void *user_data)
     (void)context;
     (void)user_data;
 
-    printf("Disconnected from Tuya Cloud\n");
+    syslog(LOG_INFO, "Disconnected callback");
 }
 
 static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuyalink_message_t *msg)
 {
-    (void)context;
-    (void)user_data;
+    printf("ON_MESSAGES ENTERED\n");
+    fflush(stdout);
 
-    printf("Message received\n");
-
-    if(msg == NULL){
+    if(msg == NULL)
         return;
-    }
 
-    printf("msg id : %s\n", msg->msgid);
-    printf("type   : %d\n", msg->type);
-    printf("code   : %d\n", msg->code);
+    printf("TYPE=%s (%d)\n",
+           THING_TYPE_ID2STR(msg->type),
+           msg->type);
 
-    printf("payload: %s\n", msg->data_string);
-    
-    if(msg->data_string != NULL){
-        printf("payload: %s\n", msg->data_string);
-    }
+    if(msg->data_string)
+        printf("DATA=%s\n", msg->data_string);
+
+    fflush(stdout);
 }
 
-Error tuya_agent_init(void)
+Error tuya_agent_init(const char *deviceId,const char *deviceSecret,const char *productId)
 {
     int ret;
 
@@ -74,12 +66,12 @@ Error tuya_agent_init(void)
             .on_messages = on_messages,
         });
 
-    if(ret != OK_T){
-        printf("tuya_mqtt_init failed: %d\n", ret);
+    if(ret != 0){
+        syslog(LOG_WARNING, "tuya_mqtt_init failed: %d\n", ret);
         return ERROR_T;
     }
 
-    printf("Tuya initialized\n");
+    syslog(LOG_INFO, "Tuya initialized\n");
 
     return OK_T;
 }
@@ -91,16 +83,61 @@ Error tuya_agent_connect(void)
     ret = tuya_mqtt_connect(&client);
 
     if(ret != OK_T){
-        printf("tuya_mqtt_connect failed: %d\n", ret);
+        syslog(LOG_WARNING, "tuya_mqtt_connect failed: %d\n", ret);
         return ERROR_T;
     }
-
-    printf("Connecting to cloud...\n");
-
     return OK_T;
 }
 
 void tuya_agent_loop(void)
 {
-    tuya_mqtt_loop(&client);
+    int ret = tuya_mqtt_loop(&client);
+}
+
+Error tuya_agent_send(const tuya_system_info_t *message)
+{
+    char payload[256];
+    
+    snprintf(payload,
+         sizeof(payload),
+         "{"
+         "\"ram_free\":%.0f,"
+         "\"ram_total\":%.0f,"
+         "\"system_uptime\":%ld,"
+         "\"cpu_usage\":%.1f,"
+         "\"interface_name\":\"%s\","
+         "\"ip_address\":\"%s\","
+         "\"net_mask\":\"%s\","
+         "\"transmitted_data_amount\":%.2f,"
+         "\"received_data_amount\":%.2f"
+         "}",
+         message->free_ram_mb,
+         message->total_ram_mb,
+         message->uptime_s,
+         message->cpu_usage_prcnt,
+         message->network[0].name,
+         message->network[0].ip,
+         message->network[0].netmask,
+         message->network[0].tx_mb,
+         message->network[0].rx_mb);
+
+    int ret = tuyalink_thing_property_report(&client, NULL, payload);
+
+    syslog(LOG_INFO, "Property report sent: %s, id = %d", payload, ret);
+
+    return OK_T;
+}
+
+void save_action_text(const char *text)
+{
+    FILE *fp = fopen("/tmp/tuya_action.log", "w");
+
+    if (fp == NULL)
+        return;
+
+    fprintf(fp, "%s\n", text);
+
+    syslog(LOG_INFO, "Action received: %s", text);
+
+    fclose(fp);
 }

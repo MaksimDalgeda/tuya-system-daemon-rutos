@@ -14,7 +14,7 @@ void sigint_handler(int signal){
 
 void set_signal_action(void){
 
-    struct sigaction sa;
+    struct sigaction sa = {0};
 
     sa.sa_handler = sigint_handler;
     sigemptyset(&sa.sa_mask);

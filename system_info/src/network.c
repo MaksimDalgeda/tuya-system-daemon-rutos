@@ -48,10 +48,13 @@ Error_Code get_network_info(network_info_t *network, size_t *network_count)
 
         if (ifa->ifa_addr == NULL)
             continue;
-
+        if (strcmp(ifa->ifa_name, "lo") == 0)
+        continue;
+        
         if (ifa->ifa_addr->sa_family != AF_INET) //AF_INET ipv4  AF_INET6 ipv6
             continue;
 
+            
         network_info_t *iface = &network[*network_count];
 
         memset(iface, 0, sizeof(*iface));

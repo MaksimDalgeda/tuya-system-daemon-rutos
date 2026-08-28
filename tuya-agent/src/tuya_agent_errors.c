@@ -24,3 +24,45 @@ Error parser_error_code(Error_Code code)
             return ERROR_T;
     }
 }
+
+const char *error_to_string(Error err)
+{
+    switch (err)
+    {
+        case OK_T:
+            return "OK_T";
+
+        case ERROR_T:
+            return "ERROR_T";
+
+        case ERROR_CONNECT_T:
+            return "ERROR_CONNECT_T";
+
+        case ERROR_TUYA_AUTH_T:
+            return "ERROR_TUYA_AUTH_T";
+
+        case ERROR_TUYA_TIME_OUT_T:
+            return "ERROR_TUYA_TIME_OUT_T";
+
+        case ERROR_TUYA_SEND_T:
+            return "ERROR_TUYA_SEND_T";
+
+        case ERROR_CPU_T:
+            return "ERROR_CPU_T";
+
+        case ERROR_RAM_T:
+            return "ERROR_RAM_T";
+
+        case ERROR_NETWORK_T:
+            return "ERROR_NETWORK_T";
+
+        case ERROR_UPTIME_T:
+            return "ERROR_UPTIME_T";
+
+        case ERROR_PARSE_T:
+            return "ERROR_PARSE_T";
+
+        default:
+            return "UNKNOWN_ERROR";
+    }
+}
