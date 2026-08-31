@@ -13,6 +13,7 @@ TARGET := build/libsystem_info.so
 all: $(TARGET)
 
 build/%.o: src/%.c
+	mkdir -p build
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJ)
