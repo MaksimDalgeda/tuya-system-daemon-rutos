@@ -14,8 +14,6 @@ typedef struct
 
 } Parameters;
 
-static bool is_empty(const char *argumemt);
-static error_t parse_opt(int key, char *arg, struct argp_state *state);
 Error parse_args(int argc, char *argv[], Parameters * parameters);
 
 #endif
