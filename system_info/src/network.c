@@ -33,7 +33,10 @@ void get_interface_stats(char *name, uint64_t *rx_bytes,uint64_t *tx_bytes)
 }
 
 Error_Code get_network_info(network_info_t *network, size_t *network_count)
-{
+{   
+    if (network == NULL || network_count == NULL)
+        return ERROR;
+    
     struct ifaddrs *ifaddr;
 
     if (getifaddrs(&ifaddr) == -1)
@@ -61,7 +64,8 @@ Error_Code get_network_info(network_info_t *network, size_t *network_count)
 
         strncpy( iface->name, ifa->ifa_name, sizeof(iface->name) - 1);
 
-        inet_ntop(AF_INET, &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr, iface->ip, sizeof(iface->ip));
+        if(inet_ntop(AF_INET, &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr, iface->ip, sizeof(iface->ip)) == NULL)
+            return NETWORK_ERROR;
 
         if (ifa->ifa_netmask != NULL)
             inet_ntop(AF_INET, &((struct sockaddr_in *)ifa->ifa_netmask)->sin_addr, iface->netmask, sizeof(iface->netmask));
