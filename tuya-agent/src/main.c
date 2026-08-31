@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
     }
 
     end:
+    tuya_agent_deinit();
     if(err == OK_T)
         syslog(LOG_INFO, "Application stopped without error");
     else

@@ -106,6 +106,13 @@ Error tuya_agent_init(const char *deviceId,const char *deviceSecret)
     return OK_T;
 }
 
+void tuya_agent_deinit()
+{
+    tuya_mqtt_disconnect(&client);
+    tuya_mqtt_deinit(&client);
+}
+
+
 Error tuya_agent_connect(void)
 {
     int ret;
