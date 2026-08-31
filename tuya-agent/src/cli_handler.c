@@ -1,5 +1,6 @@
 #include <argp.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "cli_handler.h"
 
@@ -13,6 +14,17 @@ static struct argp_option options[] = {
     {"daemon",        'D', NULL,         0, "Run as daemon", 0},
     {0}
 };
+
+static bool is_empty(const char *argumemt)
+{
+    while (*argumemt) {
+        if (!isspace((unsigned char)*argumemt))
+            return false;
+        argumemt++;
+    }
+
+    return true;
+}
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
@@ -64,7 +76,8 @@ Error parse_args(int argc, char *argv[], Parameters *parameters)
 
     argp_parse(&argp,argc,argv,0,0,parameters);
 
-    if(!parameters->device_id || !parameters->device_secret || !parameters->product_id)
+    if(!parameters->device_id || !parameters->device_secret || !parameters->product_id || 
+        is_empty(parameters->device_id) || is_empty(parameters->device_secret) || is_empty(parameters->product_id))
         return ERROR_PARSE_T;
 
     return OK_T;
