@@ -43,7 +43,7 @@ static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuy
 
     switch (msg->type){ //for future actions
         case THING_TYPE_ACTION_EXECUTE:
-            handle_action(msg);
+            handle_action_execute(msg);
             break;
 
         default:
@@ -112,30 +112,43 @@ void tuya_agent_loop(void)
 
 Error tuya_agent_send(const tuya_system_info_t *message)
 {
-    char payload[256];
-    
-    snprintf(payload,
-         sizeof(payload),
-         "{"
-         "\"ram_free\":%.0f,"
-         "\"ram_total\":%.0f,"
-         "\"system_uptime\":%ld,"
-         "\"cpu_usage\":%.1f,"
-         "\"interface_name\":\"%s\","
-         "\"ip_address\":\"%s\","
-         "\"net_mask\":\"%s\","
-         "\"transmitted_data_amount\":%.2f,"
-         "\"received_data_amount\":%.2f"
-         "}",
-         message->free_ram_mb,
-         message->total_ram_mb,
-         message->uptime_s,
-         message->cpu_usage_prcnt,
-         message->network[0].name,
-         message->network[0].ip,
-         message->network[0].netmask,
-         message->network[0].tx_mb,
-         message->network[0].rx_mb);
+    char payload[1024];
+    int offset = 0;
+
+    offset += snprintf(payload + offset,
+                       sizeof(payload) - offset,
+                       "{"
+                       "\"ram_free\":%.0f,"
+                       "\"ram_total\":%.0f,"
+                       "\"system_uptime\":%ld,"
+                       "\"cpu_usage\":%.1f,"
+                       "\"network_info\":[",
+                       message->free_ram_mb,
+                       message->total_ram_mb,
+                       message->uptime_s,
+                       message->cpu_usage_prcnt);
+
+    for (size_t i = 0; i < message->network_count; i++){
+        offset += snprintf(payload + offset,
+                           sizeof(payload) - offset,
+                           "{"
+                           "\"name\":\"%s\","
+                           "\"ip\":\"%s\","
+                           "\"netmask\":\"%s\","
+                           "\"tx_mb\":%.2f,"
+                           "\"rx_mb\":%.2f"
+                           "}",
+                           message->network[i].name,
+                           message->network[i].ip,
+                           message->network[i].netmask,
+                           message->network[i].tx_mb,
+                           message->network[i].rx_mb);
+
+        if (i < message->network_count - 1)
+            offset += snprintf(payload + offset, sizeof(payload) - offset,",");
+    }
+
+    offset += snprintf(payload + offset, sizeof(payload) - offset,"]}");
 
     int ret = tuyalink_thing_property_report(&client, NULL, payload);
 
