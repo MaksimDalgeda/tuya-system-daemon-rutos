@@ -2,13 +2,13 @@
 
 CC := gcc
 
-CFLAGS := -Wall -Wextra -Werror -fPIC
+CFLAGS := -Wall -Wextra -Werror
 CPPFLAGS := -Iinclude
 
 SRC := $(wildcard src/*.c)
 OBJ := $(patsubst src/%.c,build/%.o,$(SRC))
 
-TARGET := build/libsystem_info.so
+TARGET := build/libsystem_info.a
 
 all: $(TARGET)
 
@@ -17,7 +17,7 @@ build/%.o: src/%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJ)
-	$(CC) -shared -o $@ $(OBJ)
+	ar rcs $@ $(OBJ)
 
 clean:
-	rm -f build/*.o build/*.so
+	rm -rf build

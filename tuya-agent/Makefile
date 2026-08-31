@@ -42,5 +42,4 @@ $(TARGET): $(OBJ)
 		-o $(TARGET)
 
 clean:
-	rm -f build/*.o
-	rm -f $(TARGET)
+	rm -rf build
