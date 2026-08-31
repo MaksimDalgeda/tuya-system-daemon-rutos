@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <syslog.h>
+//#include <cjson/cJSON.h>
 
 #include "tuya_agent_errors.h"
 #include "tuyalink_core.h"
@@ -7,12 +8,14 @@
 #include "system_info_service.h"
 
 static tuya_mqtt_context_t client;
+static bool connected = false;
 
 static void on_connected(tuya_mqtt_context_t *context, void *user_data)
 {   
     (void)context;
     (void)user_data;
-
+    
+    connected = true;
     syslog(LOG_INFO, "Connected callback");
 }
 
@@ -21,25 +24,38 @@ static void on_disconnect(tuya_mqtt_context_t *context, void *user_data)
     (void)context;
     (void)user_data;
 
+    connected = false;
     syslog(LOG_INFO, "Disconnected callback");
+}
+
+bool tuya_agent_is_connected(void)
+{
+    return connected;
 }
 
 static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuyalink_message_t *msg)
 {
-    printf("ON_MESSAGES ENTERED\n");
-    fflush(stdout);
+    (void)context;
+    (void)user_data;
 
-    if(msg == NULL)
+    if (msg == NULL)
         return;
 
-    printf("TYPE=%s (%d)\n",
-           THING_TYPE_ID2STR(msg->type),
-           msg->type);
+    if (msg->type == THING_TYPE_ACTION_EXECUTE && msg->data_string != NULL){
 
-    if(msg->data_string)
-        printf("DATA=%s\n", msg->data_string);
+        cJSON *root = cJSON_Parse(msg->data_string);
+        if (root == NULL)
+            return;
 
-    fflush(stdout);
+        cJSON *inputParams = cJSON_GetObjectItem(root, "inputParams");
+
+        cJSON *text = cJSON_GetObjectItem(inputParams, "text");
+
+        if (cJSON_IsString(text))
+            save_action_text(text->valuestring);
+
+        cJSON_Delete(root);
+    }
 }
 
 Error tuya_agent_init(const char *deviceId,const char *deviceSecret,const char *productId)
@@ -130,7 +146,7 @@ Error tuya_agent_send(const tuya_system_info_t *message)
 
 void save_action_text(const char *text)
 {
-    FILE *fp = fopen("/tmp/tuya_action.log", "w");
+    FILE *fp = fopen("/tmp/tuya_action.log", "a");
 
     if (fp == NULL)
         return;

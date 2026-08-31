@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200809L //helps VS Code recognize POSIX APIS, optional, Makefile defines it
+#define _POSIX_C_SOURCE 200809L //helps VS Code recognize POSIX APIS
 #include <signal.h>
 #include <stdio.h>
 

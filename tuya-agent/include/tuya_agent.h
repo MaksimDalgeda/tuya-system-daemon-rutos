@@ -8,6 +8,7 @@
 
 Error tuya_agent_init(const char *deviceId,const char *deviceSecret,const char *productId);
 Error tuya_agent_connect(void);
+bool tuya_agent_is_connected(void);
 void tuya_agent_loop(void);
 
 Error tuya_agent_send(const tuya_system_info_t *message);
