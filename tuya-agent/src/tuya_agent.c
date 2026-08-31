@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <syslog.h>
-//#include <cjson/cJSON.h>
+#include <unistd.h>
 
 #include "tuya_agent_errors.h"
 #include "tuyalink_core.h"
@@ -10,7 +10,7 @@
 static tuya_mqtt_context_t client;
 static bool connected = false;
 
-static void on_connected(tuya_mqtt_context_t *context, void *user_data)
+void on_connected(tuya_mqtt_context_t *context, void *user_data)
 {   
     (void)context;
     (void)user_data;
@@ -19,7 +19,7 @@ static void on_connected(tuya_mqtt_context_t *context, void *user_data)
     syslog(LOG_INFO, "Connected callback");
 }
 
-static void on_disconnect(tuya_mqtt_context_t *context, void *user_data)
+void on_disconnect(tuya_mqtt_context_t *context, void *user_data)
 {
     (void)context;
     (void)user_data;
@@ -31,6 +31,20 @@ static void on_disconnect(tuya_mqtt_context_t *context, void *user_data)
 bool tuya_agent_is_connected(void)
 {
     return connected;
+}
+
+void save_action_text(const char *text)
+{
+    FILE *fp = fopen("/tmp/tuya_action.log", "a");
+
+    if (fp == NULL)
+        return;
+
+    fprintf(fp, "%s\n", text);
+
+    syslog(LOG_INFO, "Action received: %s", text);
+
+    fclose(fp);
 }
 
 static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuyalink_message_t *msg)
@@ -58,8 +72,8 @@ static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuy
     }
 }
 
-Error tuya_agent_init(const char *deviceId,const char *deviceSecret,const char *productId)
-{
+Error tuya_agent_init(const char *deviceId,const char *deviceSecret)
+{   
     int ret;
 
     ret = tuya_mqtt_init(&client,
@@ -68,7 +82,7 @@ Error tuya_agent_init(const char *deviceId,const char *deviceSecret,const char *
             .host = "m1.tuyacn.com",
             .port = 8883,
 
-            .cacert = tuya_cacert_pem,
+            .cacert = (const uint8_t *)tuya_cacert_pem,
             .cacert_len = sizeof(tuya_cacert_pem),
 
             .device_id = deviceId,
@@ -107,7 +121,7 @@ Error tuya_agent_connect(void)
 
 void tuya_agent_loop(void)
 {
-    int ret = tuya_mqtt_loop(&client);
+    tuya_mqtt_loop(&client);
 }
 
 Error tuya_agent_send(const tuya_system_info_t *message)
@@ -142,18 +156,4 @@ Error tuya_agent_send(const tuya_system_info_t *message)
     syslog(LOG_INFO, "Property report sent: %s, id = %d", payload, ret);
 
     return OK_T;
-}
-
-void save_action_text(const char *text)
-{
-    FILE *fp = fopen("/tmp/tuya_action.log", "a");
-
-    if (fp == NULL)
-        return;
-
-    fprintf(fp, "%s\n", text);
-
-    syslog(LOG_INFO, "Action received: %s", text);
-
-    fclose(fp);
 }

@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <syslog.h>
 #include <stdbool.h>
-
 #include <time.h>
+
 #include "system_info_convertor.h"
 #include "signal_handler.h"
 #include "daemon.h"
 #include "cli_handler.h"
+#include "tuya_agent.h"
+
 
 int main(int argc, char *argv[])
 {   
@@ -31,7 +33,7 @@ int main(int argc, char *argv[])
     system_info_t info;
     tuya_system_info_t message;
 
-    err = tuya_agent_init(parameters.device_id, parameters.device_secret, parameters.product_id);
+    err = tuya_agent_init(parameters.device_id, parameters.device_secret);
     if(err != OK_T)
         goto end;
     syslog(LOG_INFO, "Connect request successful");
