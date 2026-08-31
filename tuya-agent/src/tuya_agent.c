@@ -118,25 +118,31 @@ Error tuya_agent_send(const tuya_system_info_t *message)
     offset += snprintf(payload + offset,
                        sizeof(payload) - offset,
                        "{"
-                       "\"ram_free\":%.0f,"
-                       "\"ram_total\":%.0f,"
-                       "\"system_uptime\":%ld,"
-                       "\"cpu_usage\":%.1f,"
-                       "\"network_info\":[",
-                       message->free_ram_mb,
+                       "\"memory_info\":{"
+                           "\"total_ram\":%.0f,"
+                           "\"free_ram\":%.0f"
+                       "},"
+                       "\"cpu_info\":{"
+                           "\"usage\":%.1f"
+                       "},"
+                       "\"uptime_info\":{"
+                           "\"uptime\":%ld"
+                       "},"
+                       "\"network_interfaces\":[",
                        message->total_ram_mb,
-                       message->uptime_s,
-                       message->cpu_usage_prcnt);
+                       message->free_ram_mb,
+                       message->cpu_usage_prcnt,
+                       message->uptime_s);
 
     for (size_t i = 0; i < message->network_count; i++){
         offset += snprintf(payload + offset,
                            sizeof(payload) - offset,
                            "{"
-                           "\"name\":\"%s\","
-                           "\"ip\":\"%s\","
+                           "\"interface_name\":\"%s\","
+                           "\"ip_address\":\"%s\","
                            "\"netmask\":\"%s\","
-                           "\"tx_mb\":%.2f,"
-                           "\"rx_mb\":%.2f"
+                           "\"transmitted_data_amount\":%.2f,"
+                           "\"received_data_amount\":%.2f"
                            "}",
                            message->network[i].name,
                            message->network[i].ip,
@@ -144,11 +150,12 @@ Error tuya_agent_send(const tuya_system_info_t *message)
                            message->network[i].tx_mb,
                            message->network[i].rx_mb);
 
-        if (i < message->network_count - 1)
-            offset += snprintf(payload + offset, sizeof(payload) - offset,",");
+        if (i < message->network_count - 1){
+            offset += snprintf(payload + offset,sizeof(payload) - offset, ",");
+        }
     }
 
-    offset += snprintf(payload + offset, sizeof(payload) - offset,"]}");
+    offset += snprintf(payload + offset, sizeof(payload) - offset, "]}");
 
     int ret = tuyalink_thing_property_report(&client, NULL, payload);
 
