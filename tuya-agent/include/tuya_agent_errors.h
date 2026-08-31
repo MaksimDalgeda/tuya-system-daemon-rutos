@@ -7,6 +7,7 @@ typedef enum
 {
     OK_T,
     ERROR_T,
+    ERROR_NULL_POINTER_T,
     ERROR_CONNECT_T,
     ERROR_TUYA_AUTH_T,
     ERROR_TUYA_TIME_OUT_T,

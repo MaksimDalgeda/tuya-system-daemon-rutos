@@ -62,6 +62,9 @@ const char *error_to_string(Error err)
         case ERROR_PARSE_T:
             return "ERROR_PARSE_T";
 
+        case ERROR_NULL_POINTER_T:
+            return "ERROR_NULL_POINTER_T";
+
         default:
             return "UNKNOWN_ERROR";
     }
