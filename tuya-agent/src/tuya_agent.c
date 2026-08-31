@@ -33,20 +33,6 @@ bool tuya_agent_is_connected(void)
     return connected;
 }
 
-void save_action_text(const char *text)
-{
-    FILE *fp = fopen("/tmp/tuya_action.log", "a");
-
-    if (fp == NULL)
-        return;
-
-    fprintf(fp, "%s\n", text);
-
-    syslog(LOG_INFO, "Action received: %s", text);
-
-    fclose(fp);
-}
-
 static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuyalink_message_t *msg)
 {
     (void)context;
@@ -55,20 +41,13 @@ static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuy
     if (msg == NULL)
         return;
 
-    if (msg->type == THING_TYPE_ACTION_EXECUTE && msg->data_string != NULL){
+    switch (msg->type){ //for future actions
+        case THING_TYPE_ACTION_EXECUTE:
+            handle_action(msg);
+            break;
 
-        cJSON *root = cJSON_Parse(msg->data_string);
-        if (root == NULL)
-            return;
-
-        cJSON *inputParams = cJSON_GetObjectItem(root, "inputParams");
-
-        cJSON *text = cJSON_GetObjectItem(inputParams, "text");
-
-        if (cJSON_IsString(text))
-            save_action_text(text->valuestring);
-
-        cJSON_Delete(root);
+        default:
+            break;
     }
 }
 
@@ -159,8 +138,6 @@ Error tuya_agent_send(const tuya_system_info_t *message)
          message->network[0].rx_mb);
 
     int ret = tuyalink_thing_property_report(&client, NULL, payload);
-
-    //(LOG_INFO, "Property report sent: %s, id = %d", payload, ret); for logging send data
 
     return OK_T;
 }
