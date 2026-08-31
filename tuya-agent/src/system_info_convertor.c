@@ -33,12 +33,12 @@ Error convert_system_info(system_info_t *info, tuya_system_info_t *message)
     return OK_T;
 }
 
-static double convert_ram_to_mb(long data)
+double convert_ram_to_mb(long data)
 {
     return (double)data / (1024.0 * 1024.0);
 }
 
-static double convert_bytes_to_mb(uint64_t data)
+double convert_bytes_to_mb(uint64_t data)
 {
     return (double)data / (1024.0 * 1024.0);
 }

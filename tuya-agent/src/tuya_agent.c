@@ -6,6 +6,7 @@
 #include "tuyalink_core.h"
 #include "tuya_cacert.h"
 #include "system_info_service.h"
+#include "action_handler.h"
 
 static tuya_mqtt_context_t client;
 static bool connected = false;
@@ -157,7 +158,9 @@ Error tuya_agent_send(const tuya_system_info_t *message)
 
     offset += snprintf(payload + offset, sizeof(payload) - offset, "]}");
 
-    int ret = tuyalink_thing_property_report(&client, NULL, payload);
+   int report_id = tuyalink_thing_property_report(&client, NULL, payload);
+
+   syslog(LOG_DEBUG, "Property report sent, report id: %d", report_id);
 
     return OK_T;
 }
