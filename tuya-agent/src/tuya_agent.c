@@ -153,7 +153,7 @@ Error tuya_agent_send(const tuya_system_info_t *message)
 
     int ret = tuyalink_thing_property_report(&client, NULL, payload);
 
-    syslog(LOG_INFO, "Property report sent: %s, id = %d", payload, ret);
+    //(LOG_INFO, "Property report sent: %s, id = %d", payload, ret); for logging send data
 
     return OK_T;
 }
