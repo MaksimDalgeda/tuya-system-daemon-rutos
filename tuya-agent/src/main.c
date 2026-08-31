@@ -10,7 +10,6 @@
 
 int main(int argc, char *argv[])
 {   
-    
     Error err;
     Parameters parameters;
     openlog("tuya-monitor-daemon", LOG_PID | LOG_CONS, LOG_DAEMON);
@@ -74,7 +73,7 @@ int main(int argc, char *argv[])
 
     end:
     if(err == OK_T)
-        syslog(LOG_INFO, "Application stoppep without error");
+        syslog(LOG_INFO, "Application stopped without error");
     else
         syslog(LOG_INFO, "Application stopped with code - %s (%d)",error_to_string(err), err);
     closelog();
