@@ -14,7 +14,6 @@ bool tuya_agent_is_connected(void);
 void tuya_agent_loop(void);
 
 Error tuya_agent_send(const tuya_system_info_t *message);
-void save_action_text(const char *text);
 
 void tuya_agent_deinit();
 #endif
