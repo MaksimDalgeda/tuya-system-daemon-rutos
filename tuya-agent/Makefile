@@ -2,14 +2,17 @@
 
 CC ?= gcc
 
-STAGING_DIR ?=
+TUYA_SDK ?= $(abspath ../../tuya-iot-core-sdk-main)
 
-CFLAGS := -Wall -Wextra -g -std=c11
+CFLAGS += -Wall -Wextra -g -std=c11
 
 CPPFLAGS += \
     -Iinclude \
     -I../system_info/include \
-    -I$(STAGING_DIR)/usr/include
+    -I$(TUYA_SDK)/include \
+    -I$(TUYA_SDK)/interface \
+	-I$(TUYA_SDK)/utils \
+	-I$(TUYA_SDK)/examples/custom_protocol_basic_demo \
 
 SRC := $(wildcard src/*.c)
 
@@ -26,17 +29,16 @@ build/%.o: src/%.c
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) \
 		-L../system_info/build \
-		-L$(STAGING_DIR)/usr/lib \
+		-L$(TUYA_SDK)/build/lib \
 		-lsystem_info \
 		-llink_core \
 		-lmiddleware_implementation \
 		-lplatform_port \
 		-lutils_modules \
-		-lubus \
-		-lubox \
-		-lblobmsg_json \
 		-lpthread \
 		-lm \
+		-Wl,-rpath,$(TUYA_SDK)/build/lib \
+		-Wl,-rpath,'$$ORIGIN/../../system_info/build' \
 		-o $(TARGET)
 
 clean:
