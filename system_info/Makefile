@@ -1,9 +1,10 @@
 .PHONY: all clean
 
-CC := gcc
+CC ?= gcc
+AR ?= ar
 
-CFLAGS := -Wall -Wextra -Werror
-CPPFLAGS := -Iinclude
+CFLAGS += -Wall -Wextra -Werror
+CPPFLAGS += -Iinclude
 
 SRC := $(wildcard src/*.c)
 OBJ := $(patsubst src/%.c,build/%.o,$(SRC))
@@ -17,7 +18,7 @@ build/%.o: src/%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJ)
-	ar rcs $@ $(OBJ)
+	$(AR) rcs $@ $(OBJ)
 
 clean:
 	rm -rf build
