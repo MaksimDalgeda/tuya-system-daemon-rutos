@@ -4,7 +4,7 @@
 #include <ifaddrs.h>
 #include <netinet/in.h>//sockaddr_in in_addr
 #include <arpa/inet.h>//inet_ntop
-
+#include <inttypes.h>
 #include "internal.h"
 
 void get_interface_stats(char *name, uint64_t *rx_bytes,uint64_t *tx_bytes)
@@ -19,7 +19,7 @@ void get_interface_stats(char *name, uint64_t *rx_bytes,uint64_t *tx_bytes)
 
     fp = fopen(path, "r");
     if (fp != NULL) {
-        fscanf(fp, "%lu", rx_bytes);
+        fscanf(fp, "%" SCNu64, rx_bytes);
         fclose(fp);
     }
 
@@ -27,7 +27,7 @@ void get_interface_stats(char *name, uint64_t *rx_bytes,uint64_t *tx_bytes)
 
     fp = fopen(path, "r");
     if (fp != NULL) {
-        fscanf(fp, "%lu", tx_bytes);
+        fscanf(fp, "%" SCNu64, tx_bytes);
         fclose(fp);
     }
 }
