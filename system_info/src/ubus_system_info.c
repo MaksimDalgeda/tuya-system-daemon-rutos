@@ -40,11 +40,11 @@ static const struct blobmsg_policy memory_policy[] = {
 static void system_info_cb(struct ubus_request *req, int type, struct blob_attr *msg)
 {
     (void)type;
-    
+
     system_info_t *info = req->priv;
 
-    struct blob_attr *tb[__SYSTEM_INFO_MAX];
-    struct blob_attr *memory_tb[__MEMORY_MAX];
+    struct blob_attr *tb[__SYSTEM_INFO_MAX] = {0};
+    struct blob_attr *memory_tb[__MEMORY_MAX] = {0};
 
     blobmsg_parse(system_info_policy, __SYSTEM_INFO_MAX, tb, blob_data(msg), blob_len(msg));
 

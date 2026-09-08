@@ -1,6 +1,6 @@
 #include "ubus.h"
 
-static Ubus_State g_ubus = {0};
+static Ubus_State g_ubus;
 
 Error_Code initialize_ubus(void){
 
@@ -39,4 +39,9 @@ Error_Code ubus_get_object_ids(void){
         return ERR_UBUS_WAN_LOOKUP;
 
     return OK;
+}
+
+Ubus_State *get_ubus_state(void)
+{
+    return &g_ubus;
 }
