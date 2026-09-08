@@ -1,6 +1,7 @@
+#define _POSIX_C_SOURCE 200809L
 #include "system_info_service.h" 
 #include "system_info_convertor.h"
-
+#include "ubus.h"
 Error system_info_service(system_info_t * info)
 {
     Error_Code ret;

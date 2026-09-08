@@ -4,7 +4,6 @@
 #define MAX_INTERFACES_TUYA 10
 
 #include <stddef.h>
-
 #include "tuya_agent_errors.h"
 #include "system_info.h"
 
