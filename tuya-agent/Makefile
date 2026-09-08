@@ -36,6 +36,7 @@ $(TARGET): $(OBJ)
 		-lplatform_port \
 		-lutils_modules \
 		-lpthread \
+		-largp \
 		-lm \
 		-lubus \
 		-lubox \
