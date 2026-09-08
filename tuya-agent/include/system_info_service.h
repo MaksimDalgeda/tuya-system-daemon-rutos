@@ -30,5 +30,7 @@ typedef struct
 } tuya_system_info_t;
 
 Error system_info_service(system_info_t *info);
+void initialize_ubus_disconnect();
+Error initialize_ubus_connection();
 
 #endif

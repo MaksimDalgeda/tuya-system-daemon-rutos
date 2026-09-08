@@ -16,11 +16,14 @@ typedef enum
     ERROR_RAM_T,
     ERROR_NETWORK_T,
     ERROR_UPTIME_T,
-    ERROR_PARSE_T
+    ERROR_PARSE_T,
+    ERROR_UBUS_INITIALIZE_T,
+    ERROR_UBUS_DATA_T
 
 } Error;
 
 Error parser_error_code(Error_Code error);
+Error initialize_ubus_connection();
 const char *error_to_string(Error err);
 
 #endif

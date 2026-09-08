@@ -43,7 +43,11 @@ int main(int argc, char *argv[])
         goto end;
 
     syslog(LOG_INFO, "Connected to Tuya cloud");
-    
+
+
+    err = initialize_ubus_connection();
+    if(err != OK_T)
+        goto end;
 
     time_t last_send = 0;
 
@@ -75,6 +79,7 @@ int main(int argc, char *argv[])
 
     end:
     tuya_agent_deinit();
+    initialize_ubus_disconnect();
     if(err == OK_T)
         syslog(LOG_INFO, "Application stopped without error");
     else

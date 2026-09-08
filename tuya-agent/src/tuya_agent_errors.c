@@ -20,6 +20,16 @@ Error parser_error_code(Error_Code code)
         case UPTIME_ERROR:
             return ERROR_UPTIME_T;
 
+        case ERR_UBUS_CONNECT:
+        case ERR_UBUS_INVOKE:
+        case ERR_UBUS_NOT_INITIALIZED:
+            return ERROR_UBUS_INITIALIZE_T;
+
+        case ERR_UBUS_SYSTEM_LOOKUP:
+        case ERR_UBUS_LAN_LOOKUP:
+        case ERR_UBUS_WAN_LOOKUP:    
+            return ERROR_UBUS_DATA_T;
+
         default:
             return ERROR_T;
     }
@@ -64,6 +74,12 @@ const char *error_to_string(Error err)
 
         case ERROR_NULL_POINTER_T:
             return "ERROR_NULL_POINTER_T";
+
+        case  ERROR_UBUS_INITIALIZE_T:
+            return "ERROR_UBUS_INITIALIZE_T";
+
+        case ERROR_UBUS_DATA_T:
+            return "ERROR_UBUS_DATA_T";
 
         default:
             return "UNKNOWN_ERROR";

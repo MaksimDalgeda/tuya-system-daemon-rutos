@@ -21,27 +21,3 @@ Error_Code get_system_info(system_info_t *info){
 
     return OK;
 }
-
-Error_Code initialize_ubus_connection(){
-
-    Error_Code err = OK;
-
-    err = initialize_ubus(); 
-    if(err != OK)
-        return err;
-
-    err = ubus_get_object_ids();
-     if(err != OK)
-        return err;
-
-    return OK;
-}
-
-Error_Code initialize_ubus_disconnect(){
-
-    Error_Code err = OK;
-
-    err = disconnect_ubus(); 
-
-    return err;
-}

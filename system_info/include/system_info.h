@@ -29,8 +29,6 @@ typedef struct
 
 } system_info_t;
 
-Error_Code initialize_ubus_connection();
-Error_Code initialize_ubus_disconnect();
 Error_Code get_system_info(system_info_t *info);
 
 #endif

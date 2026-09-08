@@ -68,8 +68,10 @@ Error_Code ubus_get_system_info(system_info_t *info){
     int err;
 
     Ubus_State *ubus = get_ubus_state();
-    if(ubus == NULL)
+    if(ubus == NULL || ubus->ctx == NULL)
         return ERR_UBUS_NOT_INITIALIZED;
+    if(ubus->system_id == 0)
+        return ERR_UBUS_SYSTEM_LOOKUP;
 
     err = ubus_invoke(ubus->ctx, ubus->system_id, "info", NULL, system_info_cb, info, 3000);
 
