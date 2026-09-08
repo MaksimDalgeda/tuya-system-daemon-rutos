@@ -37,6 +37,8 @@ $(TARGET): $(OBJ)
 		-lutils_modules \
 		-lpthread \
 		-lm \
+		-lubus \
+		-lubox \
 		-Wl,-rpath,$(TUYA_SDK)/build/lib \
 		-Wl,-rpath,'$$ORIGIN/../../system_info/build' \
 		-o $(TARGET)

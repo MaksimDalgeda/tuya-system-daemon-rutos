@@ -9,6 +9,7 @@ SRC := $(wildcard src/*.c)
 OBJ := $(patsubst src/%.c,build/%.o,$(SRC))
 
 TARGET := build/libsystem_info.a
+TARGET_LDFLAGS += -lubus -lubox
 
 all: $(TARGET)
 
