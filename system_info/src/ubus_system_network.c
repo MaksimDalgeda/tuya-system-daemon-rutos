@@ -4,7 +4,4 @@
 #include "ubus_internal.h"
 
 
-Error_Code ubus_get_system_network(system_info_t *info)
-{
-
-}     
+//Error_Code ubus_get_system_network(system_info_t *info){}     
