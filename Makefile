@@ -41,7 +41,7 @@ $(TARGET): $(OBJ)
 		-lpthread \
 		-lm \
 		-Wl,-rpath,$(TUYA_SDK)/build/lib \
-		-o
+		-o $@
 
 run: all
 	LD_LIBRARY_PATH=$(TUYA_SDK)/build/lib:$$LD_LIBRARY_PATH \
