@@ -1,47 +1,54 @@
-.PHONY: all run build-lib build-src clean clean-lib clean-src install uninstall
+.PHONY: all clean run
 
-PREFIX ?= /usr/local
-BINDIR := $(PREFIX)/bin
-LIBDIR := $(PREFIX)/lib
+CC := gcc
 
-all:
-	$(MAKE) -C system_info
-	$(MAKE) -C tuya-agent
+TUYA_SDK := $(abspath sdk)
 
-TUYA_LIB := $(HOME)/Documents/Projects/tuya-iot-core-sdk-main/build/lib
+CFLAGS := -Wall -Wextra -g -std=c11
+
+CPPFLAGS := \
+    -Isystem_info/include \
+    -Ituya-agent/include \
+    -I$(TUYA_SDK)/include \
+    -I$(TUYA_SDK)/interface \
+    -I$(TUYA_SDK)/utils \
+    -I$(TUYA_SDK)/examples/custom_protocol_basic_demo
+
+SYSTEM_INFO_SRC := $(wildcard system_info/src/*.c)
+TUYA_AGENT_SRC := $(wildcard tuya-agent/src/*.c)
+
+SRC := \
+    $(SYSTEM_INFO_SRC) \
+    $(TUYA_AGENT_SRC)
+
+OBJ := $(patsubst %.c,build/%.o,$(SRC))
+
+TARGET := build/tuya-monitor-daemon
+
+all: $(TARGET)
+
+build/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(TARGET): $(OBJ)
+	$(CC) $(OBJ) \
+		-L$(TUYA_SDK)/build/lib \
+		-llink_core \
+		-lmiddleware_implementation \
+		-lplatform_port \
+		-lutils_modules \
+		-lpthread \
+		-lm \
+		-Wl,-rpath,$(TUYA_SDK)/build/lib \
+		-o $@
 
 run: all
-	LD_LIBRARY_PATH=$(TUYA_LIB):$$LD_LIBRARY_PATH \
-	./tuya-agent/build/tuya-monitor-daemon\
-		--device-id 2630971166afe6a35f7yph\
-		--device-secret uUQgkqABDcHHKzUi\
-		--product-id l3ydtvg3stqqf7io\
-		--daemon
-
-
-build-lib:
-	$(MAKE) -C system_info
-
-build-src:
-	$(MAKE) -C tuya-agent
+	LD_LIBRARY_PATH=$(TUYA_SDK)/build/lib:$$LD_LIBRARY_PATH \
+	./$(TARGET) \
+		--device-id 2630971166afe6a35f7yph \
+		--device-secret uUQgkqABDcHHKzUi \
+		--product-id l3ydtvg3stqqf7io
 
 clean:
-	$(MAKE) -C system_info clean
-	$(MAKE) -C tuya-agent clean
-
-clean-lib:
-	$(MAKE) -C system_info clean
-
-clean-src:
-	$(MAKE) -C tuya-agent clean
-
-install: all
-	install -d $(BINDIR)
-	install -d $(LIBDIR)
-
-	install -m 755 tuya-agent/build/tuya-monitor-daemon $(BINDIR)/
-	install -m 755 system_info/build/libsystem_info.so $(LIBDIR)/
-
-uninstall:
-	rm -f $(BINDIR)/tuya-monitor-daemon
-	rm -f $(LIBDIR)/libsystem_info.so
+	rm -rf build
