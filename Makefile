@@ -48,7 +48,8 @@ run: all
 	./$(TARGET) \
 		--device-id 2630971166afe6a35f7yph \
 		--device-secret uUQgkqABDcHHKzUi \
-		--product-id l3ydtvg3stqqf7io
+		--product-id l3ydtvg3stqqf7io\
+		--daemon
 
 clean:
 	rm -rf build
