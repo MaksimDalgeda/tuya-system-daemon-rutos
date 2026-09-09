@@ -1,7 +1,7 @@
 #ifndef SYSTEM_INFO_SERVICE_H
 #define SYSTEM_INFO_SERVICE_H
 
-#define MAX_INTERFACES_TUYA 1
+#define MAX_INTERFACES_TUYA 10
 
 #include <stddef.h>
 

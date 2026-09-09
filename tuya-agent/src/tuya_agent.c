@@ -6,6 +6,7 @@
 #include "tuyalink_core.h"
 #include "tuya_cacert.h"
 #include "system_info_service.h"
+#include "action_handler.h"
 
 static tuya_mqtt_context_t client;
 static bool connected = false;
@@ -33,20 +34,6 @@ bool tuya_agent_is_connected(void)
     return connected;
 }
 
-void save_action_text(const char *text)
-{
-    FILE *fp = fopen("/tmp/tuya_action.log", "a");
-
-    if (fp == NULL)
-        return;
-
-    fprintf(fp, "%s\n", text);
-
-    syslog(LOG_INFO, "Action received: %s", text);
-
-    fclose(fp);
-}
-
 static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuyalink_message_t *msg)
 {
     (void)context;
@@ -55,20 +42,13 @@ static void on_messages(tuya_mqtt_context_t *context, void *user_data, const tuy
     if (msg == NULL)
         return;
 
-    if (msg->type == THING_TYPE_ACTION_EXECUTE && msg->data_string != NULL){
+    switch (msg->type){ //for future actions
+        case THING_TYPE_ACTION_EXECUTE:
+            handle_action_execute(msg);
+            break;
 
-        cJSON *root = cJSON_Parse(msg->data_string);
-        if (root == NULL)
-            return;
-
-        cJSON *inputParams = cJSON_GetObjectItem(root, "inputParams");
-
-        cJSON *text = cJSON_GetObjectItem(inputParams, "text");
-
-        if (cJSON_IsString(text))
-            save_action_text(text->valuestring);
-
-        cJSON_Delete(root);
+        default:
+            break;
     }
 }
 
@@ -106,6 +86,13 @@ Error tuya_agent_init(const char *deviceId,const char *deviceSecret)
     return OK_T;
 }
 
+void tuya_agent_deinit()
+{
+    tuya_mqtt_disconnect(&client);
+    tuya_mqtt_deinit(&client);
+}
+
+
 Error tuya_agent_connect(void)
 {
     int ret;
@@ -126,34 +113,54 @@ void tuya_agent_loop(void)
 
 Error tuya_agent_send(const tuya_system_info_t *message)
 {
-    char payload[256];
-    
-    snprintf(payload,
-         sizeof(payload),
-         "{"
-         "\"ram_free\":%.0f,"
-         "\"ram_total\":%.0f,"
-         "\"system_uptime\":%ld,"
-         "\"cpu_usage\":%.1f,"
-         "\"interface_name\":\"%s\","
-         "\"ip_address\":\"%s\","
-         "\"net_mask\":\"%s\","
-         "\"transmitted_data_amount\":%.2f,"
-         "\"received_data_amount\":%.2f"
-         "}",
-         message->free_ram_mb,
-         message->total_ram_mb,
-         message->uptime_s,
-         message->cpu_usage_prcnt,
-         message->network[0].name,
-         message->network[0].ip,
-         message->network[0].netmask,
-         message->network[0].tx_mb,
-         message->network[0].rx_mb);
+    char payload[1024];
+    int offset = 0;
 
-    int ret = tuyalink_thing_property_report(&client, NULL, payload);
+    offset += snprintf(payload + offset,
+                       sizeof(payload) - offset,
+                       "{"
+                       "\"memory_info\":{"
+                           "\"total_ram\":%.0f,"
+                           "\"free_ram\":%.0f"
+                       "},"
+                       "\"cpu_info\":{"
+                           "\"usage\":%.1f"
+                       "},"
+                       "\"uptime_info\":{"
+                           "\"uptime\":%ld"
+                       "},"
+                       "\"network_interfaces\":[",
+                       message->total_ram_mb,
+                       message->free_ram_mb,
+                       message->cpu_usage_prcnt,
+                       message->uptime_s);
 
-    syslog(LOG_INFO, "Property report sent: %s, id = %d", payload, ret);
+    for (size_t i = 0; i < message->network_count; i++){
+        offset += snprintf(payload + offset,
+                           sizeof(payload) - offset,
+                           "{"
+                           "\"interface_name\":\"%s\","
+                           "\"ip_address\":\"%s\","
+                           "\"netmask\":\"%s\","
+                           "\"transmitted_data_amount\":%.2f,"
+                           "\"received_data_amount\":%.2f"
+                           "}",
+                           message->network[i].name,
+                           message->network[i].ip,
+                           message->network[i].netmask,
+                           message->network[i].tx_mb,
+                           message->network[i].rx_mb);
+
+        if (i < message->network_count - 1){
+            offset += snprintf(payload + offset,sizeof(payload) - offset, ",");
+        }
+    }
+
+    offset += snprintf(payload + offset, sizeof(payload) - offset, "]}");
+
+   int report_id = tuyalink_thing_property_report(&client, NULL, payload);
+
+   syslog(LOG_DEBUG, "Property report sent, report id: %d", report_id);
 
     return OK_T;
 }

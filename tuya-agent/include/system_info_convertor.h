@@ -8,6 +8,5 @@ Error convert_system_info(system_info_t *info, tuya_system_info_t *message);
 double convert_ram_to_mb(long data);
 double convert_bytes_to_mb(uint64_t data);
 
-
 #endif
 
