@@ -5,7 +5,7 @@ CC ?= gcc
 TUYA_SDK ?= $(STAGING_DIR)/usr
 SDK_BUILD_DIR ?= $(TUYA_SDK)
 
-CFLAGS := -Wall -Wextra -g -std=c11
+CFLAGS ?= -Wall -Wextra -g -std=c11 -D_DEFAULT_SOURCE
 
 CPPFLAGS := \
     -Isystem_info/include \
