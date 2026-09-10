@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdio.h>
 #include <libubus.h>
 #include <libubox/blobmsg.h>
 

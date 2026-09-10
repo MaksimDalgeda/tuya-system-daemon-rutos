@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <signal.h>
 
 #include "internal.h"
 #include "ubus_internal.h"
@@ -11,7 +12,7 @@ Error_Code get_system_info(system_info_t *info){
     if(err > OK)
         return err;
 
-    err = get_network_info(info->network, &info->network_count);//change to ubus
+    err = ubus_get_system_network(info->network, &info->network_count);//change to ubus
     if(err > OK)
         return err;
 
