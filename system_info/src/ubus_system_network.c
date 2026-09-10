@@ -7,14 +7,14 @@
 #include "ubus_internal.h"
 
 enum {
-    NETWORK_INTERFACE,
+    NETWORK_DEVICE,
     NETWORK_IPV4_ADDRESS,
     __NETWORK_MAX
 };
 
 static const struct blobmsg_policy network_policy[] = {
-    [NETWORK_INTERFACE] = {
-        .name = "interface",
+    [NETWORK_DEVICE] = {
+        .name = "device",
         .type = BLOBMSG_TYPE_STRING,
     },
     [NETWORK_IPV4_ADDRESS] = {
@@ -62,10 +62,14 @@ static void network_cb(struct ubus_request *req, int type, struct blob_attr *msg
 
     blobmsg_parse(network_policy,__NETWORK_MAX, tb, blob_data(msg), blob_len(msg));
 
-    if(tb[NETWORK_INTERFACE])
-        strncpy(network->name, blobmsg_get_string(tb[NETWORK_INTERFACE]), sizeof(network->name) - 1);
-    
+    if (tb[NETWORK_DEVICE]){
+        const char *name = blobmsg_get_string(tb[NETWORK_DEVICE]);
 
+        strncpy(network->name, name, sizeof(network->name) - 1);
+
+        network->name[sizeof(network->name) - 1] = '\0';
+    }
+    
     if(tb[NETWORK_IPV4_ADDRESS]){
         struct blob_attr *cur;
         int rem;
@@ -113,6 +117,5 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
         return ERR_UBUS_INVOKE;
     (*network_count)++;
    
-
     return OK;
 }
