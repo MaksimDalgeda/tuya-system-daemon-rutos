@@ -12,7 +12,11 @@ Error_Code get_system_info(system_info_t *info){
     if(err > OK)
         return err;
 
-    err = ubus_get_system_network(info->network, &info->network_count);//change to ubus
+    err = ubus_get_system_network(info->network, &info->network_count);
+    if(err > OK)
+        return err;
+
+    err = ubus_get_system_traffic(info->network, &info->network_count);
     if(err > OK)
         return err;
 

@@ -38,6 +38,10 @@ Error_Code ubus_get_object_ids(void){
     if(err != 0)
         return ERR_UBUS_WAN_LOOKUP;
 
+    err = ubus_lookup_id(g_ubus.ctx, "network.device", &g_ubus.network_device_id);
+    if (err != 0)
+        return ERR_UBUS_NETWORK_DEVICE_LOOKUP;
+
     return OK;
 }
 

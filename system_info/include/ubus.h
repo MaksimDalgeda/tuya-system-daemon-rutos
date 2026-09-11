@@ -11,6 +11,7 @@ typedef struct
     uint32_t system_id;
     uint32_t lan_id;
     uint32_t wan_id;
+    uint32_t network_device_id;
 
 } Ubus_State; 
 
