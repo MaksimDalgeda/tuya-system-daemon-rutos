@@ -108,6 +108,6 @@ Error_Code ubus_get_system_traffic(network_info_t *network, size_t *network_coun
         if (network[i].rx_bytes == 0 && network[i].tx_bytes == 0) {
             syslog(LOG_WARNING, "Interface %s reports zero traffic", network[i].name);
         }
-
+    }
     return OK;
 }
