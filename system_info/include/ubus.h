@@ -2,7 +2,7 @@
 #define UBUS_H
 
 #include <libubus.h>
-
+#include <syslog.h>
 #include "system_info.h"
 
 typedef struct

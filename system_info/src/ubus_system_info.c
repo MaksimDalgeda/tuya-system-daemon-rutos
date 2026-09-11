@@ -70,15 +70,21 @@ Error_Code ubus_get_system_info(system_info_t *info){
     int err;
 
     Ubus_State *ubus = get_ubus_state();
-    if(ubus == NULL || ubus->ctx == NULL)
+    if(ubus == NULL || ubus->ctx == NULL){
+        syslog(LOG_ERR, "UBUS not initialized");
         return ERR_UBUS_NOT_INITIALIZED;
-    if(ubus->system_id == 0)
+    }
+    if(ubus->system_id == 0){
+        syslog(LOG_ERR, "UBUS system object lookup failed");
         return ERR_UBUS_SYSTEM_LOOKUP;
+    }
 
     err = ubus_invoke(ubus->ctx, ubus->system_id, "info", NULL, system_info_cb, info, 3000);
 
-    if(err != UBUS_STATUS_OK)
+    if(err != UBUS_STATUS_OK){
+        syslog(LOG_ERR, "UBUS invoke system.info failed (%d)", err);
         return ERR_UBUS_INVOKE;
+    }
 
     return OK;
 }

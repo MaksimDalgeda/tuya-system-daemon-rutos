@@ -56,7 +56,7 @@ static void traffic_cb(struct ubus_request *req, int type, struct blob_attr *msg
 
     if (stats_tb[STATS_TX_BYTES])
         network->tx_bytes = blobmsg_get_u64(stats_tb[STATS_TX_BYTES]);
-        
+
 }
 
 Error_Code ubus_get_system_traffic(network_info_t *network, size_t *network_count)
@@ -65,21 +65,29 @@ Error_Code ubus_get_system_traffic(network_info_t *network, size_t *network_coun
 
     struct blob_buf b = {0};
 
-    if (network == NULL || network_count == NULL)
+    if (network == NULL || network_count == NULL) {
+        syslog(LOG_ERR, "Invalid traffic arguments");
         return ERROR;
+    }
 
     Ubus_State *ubus = get_ubus_state();
 
-    if (ubus == NULL || ubus->ctx == NULL)
+    if (ubus == NULL || ubus->ctx == NULL) {
+        syslog(LOG_ERR, "UBUS not initialized");
         return ERR_UBUS_NOT_INITIALIZED;
+    }
 
-    if (ubus->network_device_id == 0)
+    if (ubus->network_device_id == 0) {
+        syslog(LOG_ERR, "network.device object not found");
         return ERR_UBUS_NETWORK_DEVICE_LOOKUP;
+    }
 
     for (size_t i = 0; i < *network_count; i++) {
 
-        if (network[i].name[0] == '\0')
+        if (network[i].name[0] == '\0') {
+            syslog(LOG_ERR, "Network interface name is empty");
             return ERR_UBUS_INVOKE;
+        }
 
         blob_buf_init(&b, 0);
 
@@ -92,12 +100,14 @@ Error_Code ubus_get_system_traffic(network_info_t *network, size_t *network_coun
 
         blob_buf_free(&b);
 
-        if (err != UBUS_STATUS_OK)
+        if (err != UBUS_STATUS_OK) {
+            syslog(LOG_ERR, "Failed to get traffic statistics for interface %s (%d)", network[i].name, err);
             return ERR_UBUS_INVOKE;
+        }
 
-        if (network[i].rx_bytes == 0 && network[i].tx_bytes == 0)
-            return ERR_UBUS_INVOKE;
-    }
+        if (network[i].rx_bytes == 0 && network[i].tx_bytes == 0) {
+            syslog(LOG_WARNING, "Interface %s reports zero traffic", network[i].name);
+        }
 
     return OK;
 }

@@ -95,26 +95,36 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
 {
     int err;
 
-    if (network == NULL || network_count == NULL)
+    if (network == NULL || network_count == NULL) {
+        syslog(LOG_ERR, "Invalid network arguments");
         return ERROR;
+    }
     *network_count = 0;
 
     Ubus_State *ubus = get_ubus_state();
 
-    if(ubus == NULL || ubus->ctx == NULL)
+    if (ubus == NULL || ubus->ctx == NULL) {
+        syslog(LOG_ERR, "UBUS not initialized");
         return ERR_UBUS_NOT_INITIALIZED;
+    }
 
-    if(ubus->lan_id == 0 && ubus->wan_id == 0)
+    if (ubus->lan_id == 0 && ubus->wan_id == 0) {
+        syslog(LOG_ERR, "LAN and WAN UBUS objects not found");
         return ERR_UBUS_SYSTEM_LOOKUP;
+    }
 
     err = ubus_invoke(ubus->ctx, ubus->lan_id, "status", NULL, network_cb, &network[*network_count], 3000);
-    if (err != UBUS_STATUS_OK)
+    if (err != UBUS_STATUS_OK){
+         syslog(LOG_ERR, "Failed to get LAN status from UBUS (%d)", err);
         return ERR_UBUS_INVOKE;
+    }
     (*network_count)++;
 
     err = ubus_invoke(ubus->ctx, ubus->wan_id, "status", NULL, network_cb, &network[*network_count], 3000);
-    if (err != UBUS_STATUS_OK)
+    if (err != UBUS_STATUS_OK){
+        syslog(LOG_ERR, "Failed to get WAN status from UBUS (%d)", err);
         return ERR_UBUS_INVOKE;
+    }
     (*network_count)++;
    
     return OK;
