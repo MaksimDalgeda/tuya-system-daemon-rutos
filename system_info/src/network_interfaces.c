@@ -49,6 +49,7 @@ Error_Code get_network_interfaces(network_info_t *network, size_t *network_count
             syslog(LOG_WARNING, "Maximum number of interfaces (%d) reached", MAX_INTERFACES);
             break;
         }
+    }
 
     uci_unload(ctx, pkg);
     uci_free_context(ctx);
