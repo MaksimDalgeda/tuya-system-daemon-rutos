@@ -43,6 +43,7 @@ $(TARGET): $(OBJ)
 		-lpthread \
 		-lubus \
 		-lubox \
+		-luci \
 		-lblobmsg_json \
 		-lcjson \
 		-lm \
