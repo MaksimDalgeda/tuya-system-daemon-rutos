@@ -35,8 +35,8 @@ Error_Code get_network_interfaces(network_info_t *network, size_t *network_count
             continue;
         
         proto = uci_lookup_option(ctx, s, "proto");
-
-        if (proto && strcmp(proto->v.string, "dhcpv6") == 0)
+        //to exclude ipv6
+        if (proto && strcmp(proto->v.string, "dhcpv6") == 0) //for ipv6
             continue;
 
         strncpy(network[*network_count].name, s->e.name, sizeof(network[*network_count].name) - 1);
@@ -44,7 +44,11 @@ Error_Code get_network_interfaces(network_info_t *network, size_t *network_count
         network[*network_count].name[sizeof(network[*network_count].name) - 1] = '\0';
 
         (*network_count)++;
-    }
+
+        if (*network_count >= MAX_INTERFACES) {
+            syslog(LOG_WARNING, "Maximum number of interfaces (%d) reached", MAX_INTERFACES);
+            break;
+        }
 
     uci_unload(ctx, pkg);
     uci_free_context(ctx);
