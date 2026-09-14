@@ -99,13 +99,15 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
     
     Ubus_State *ubus = get_ubus_state();
 
+    syslog(LOG_ERR, "BEFORE UBUS CHECK");
+
     if (ubus == NULL || ubus->ctx == NULL) {
         syslog(LOG_ERR, "UBUS not initialized");
         return ERR_UBUS_NOT_INITIALIZED;
     }
-
+     syslog(LOG_ERR, "AFTER UBUS CHECK");
     for (size_t i = 0; i < *network_count; i++) {
-
+        syslog(LOG_ERR, "IN LOOP");
         char object[64];
         uint32_t object_id;
 
@@ -119,7 +121,7 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
         }
 
         err = ubus_invoke(ubus->ctx, object_id, "status", NULL, network_cb, &network[i], 3000);
-
+        syslog(LOG_ERR, "END LOOP");
         if (err != UBUS_STATUS_OK)
             continue;
     }
