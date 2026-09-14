@@ -1,3 +1,5 @@
+#include <uci.h>
+
 #include "ubus.h"
 
 static Ubus_State g_ubus;
@@ -29,14 +31,6 @@ Error_Code ubus_get_object_ids(void){
     err = ubus_lookup_id(g_ubus.ctx, "system", &g_ubus.system_id);
     if(err != 0)
         return ERR_UBUS_SYSTEM_LOOKUP;
-    
-    err = ubus_lookup_id(g_ubus.ctx, "network.interface.lan", &g_ubus.lan_id);
-    if(err != 0)
-        return ERR_UBUS_LAN_LOOKUP;
-    
-    err = ubus_lookup_id(g_ubus.ctx, "network.interface.wan", &g_ubus.wan_id);
-    if(err != 0)
-        return ERR_UBUS_WAN_LOOKUP;
 
     err = ubus_lookup_id(g_ubus.ctx, "network.device", &g_ubus.network_device_id);
     if (err != 0)

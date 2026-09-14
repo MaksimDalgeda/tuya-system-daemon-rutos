@@ -62,13 +62,6 @@ static void network_cb(struct ubus_request *req, int type, struct blob_attr *msg
 
     blobmsg_parse(network_policy,__NETWORK_MAX, tb, blob_data(msg), blob_len(msg));
 
-    if (tb[NETWORK_DEVICE]){
-        const char *name = blobmsg_get_string(tb[NETWORK_DEVICE]);
-
-        strncpy(network->name, name, sizeof(network->name) - 1);
-
-        network->name[sizeof(network->name) - 1] = '\0';
-    }
     
     if(tb[NETWORK_IPV4_ADDRESS]){
         struct blob_attr *cur;
@@ -99,8 +92,11 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
         syslog(LOG_ERR, "Invalid network arguments");
         return ERROR;
     }
-    *network_count = 0;
+    err = get_network_interfaces(network, network_count);
+    if (err != OK)
+        return err;
 
+    
     Ubus_State *ubus = get_ubus_state();
 
     if (ubus == NULL || ubus->ctx == NULL) {
@@ -108,24 +104,25 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
         return ERR_UBUS_NOT_INITIALIZED;
     }
 
-    if (ubus->lan_id == 0 && ubus->wan_id == 0) {
-        syslog(LOG_ERR, "LAN and WAN UBUS objects not found");
-        return ERR_UBUS_SYSTEM_LOOKUP;
-    }
+    for (size_t i = 0; i < *network_count; i++) {
 
-    err = ubus_invoke(ubus->ctx, ubus->lan_id, "status", NULL, network_cb, &network[*network_count], 3000);
-    if (err != UBUS_STATUS_OK){
-         syslog(LOG_ERR, "Failed to get LAN status from UBUS (%d)", err);
-        return ERR_UBUS_INVOKE;
-    }
-    (*network_count)++;
+        char object[64];
+        uint32_t object_id;
 
-    err = ubus_invoke(ubus->ctx, ubus->wan_id, "status", NULL, network_cb, &network[*network_count], 3000);
-    if (err != UBUS_STATUS_OK){
-        syslog(LOG_ERR, "Failed to get WAN status from UBUS (%d)", err);
-        return ERR_UBUS_INVOKE;
+        snprintf(object,sizeof(object), "network.interface.%s", network[i].name);
+
+        err = ubus_lookup_id(ubus->ctx, object, &object_id);
+
+        if (err != UBUS_STATUS_OK) {
+            syslog(LOG_WARNING, "Interface %s not found", network[i].name);
+            continue;
+        }
+
+        err = ubus_invoke(ubus->ctx, object_id, "status", NULL, network_cb, &network[i], 3000);
+
+        if (err != UBUS_STATUS_OK)
+            continue;
     }
-    (*network_count)++;
    
     return OK;
 }
