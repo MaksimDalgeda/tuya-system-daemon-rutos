@@ -62,6 +62,16 @@ static void network_cb(struct ubus_request *req, int type, struct blob_attr *msg
 
     blobmsg_parse(network_policy,__NETWORK_MAX, tb, blob_data(msg), blob_len(msg));
 
+    if (tb[NETWORK_DEVICE]) {
+        const char *device = blobmsg_get_string(tb[NETWORK_DEVICE]);
+
+        strncpy(network->name, device, sizeof(network->name) - 1);
+
+        network->name[sizeof(network->name) - 1] = '\0';
+
+        syslog(LOG_INFO, "Found device %s", device);
+    }
+
     
     if(tb[NETWORK_IPV4_ADDRESS]){
         struct blob_attr *cur;
@@ -96,18 +106,15 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
     if (err != OK)
         return err;
 
-    
     Ubus_State *ubus = get_ubus_state();
-
-    syslog(LOG_ERR, "BEFORE UBUS CHECK");
 
     if (ubus == NULL || ubus->ctx == NULL) {
         syslog(LOG_ERR, "UBUS not initialized");
         return ERR_UBUS_NOT_INITIALIZED;
     }
-     syslog(LOG_ERR, "AFTER UBUS CHECK");
+
     for (size_t i = 0; i < *network_count; i++) {
-        syslog(LOG_ERR, "IN LOOP");
+
         char object[64];
         uint32_t object_id;
 
@@ -121,7 +128,7 @@ Error_Code ubus_get_system_network(network_info_t *network, size_t *network_coun
         }
 
         err = ubus_invoke(ubus->ctx, object_id, "status", NULL, network_cb, &network[i], 3000);
-        syslog(LOG_ERR, "END LOOP");
+
         if (err != UBUS_STATUS_OK)
             continue;
     }

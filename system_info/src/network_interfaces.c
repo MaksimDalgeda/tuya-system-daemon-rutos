@@ -26,10 +26,17 @@ Error_Code get_network_interfaces(network_info_t *network, size_t *network_count
 
         struct uci_section *s = uci_to_section(e);
 
+        struct uci_option *proto;
+
         if (strcmp(s->type, "interface") != 0)
             continue;
 
         if (strcmp(s->e.name, "loopback") == 0)
+            continue;
+        
+        proto = uci_lookup_option(ctx, s, "proto");
+
+        if (proto && strcmp(proto->v.string, "dhcpv6") == 0)
             continue;
 
         strncpy(network[*network_count].name, s->e.name, sizeof(network[*network_count].name) - 1);
