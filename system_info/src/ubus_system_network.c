@@ -68,8 +68,6 @@ static void network_cb(struct ubus_request *req, int type, struct blob_attr *msg
         strncpy(network->name, device, sizeof(network->name) - 1);
 
         network->name[sizeof(network->name) - 1] = '\0';
-
-        syslog(LOG_INFO, "Found device %s", device);
     }
 
     
