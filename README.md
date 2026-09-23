@@ -1,17 +1,24 @@
-# Tuya System Daemon for RutOS
+# Tuya Router Packages
 
 ## Overview
 
-This project contains the source code of a RutOS daemon responsible for collecting router information through ubus and sending it to the Tuya IoT Cloud.
+This repository contains OpenWRT/RutOS packages required for Tuya IoT Cloud integration.
+
+## Packages
+
+### tuya_iot_core
+Provides the Tuya SDK used for communication with the Tuya IoT Cloud.
+
+### tuya_daemon
+Daemon service that collects router information and publishes it to the Tuya IoT Cloud.
+
+### vuci-app-tuya-api
+VuCI API package used to configure and control the Tuya daemon.
 
 ## Features
 
-- Collects router information using ubus.
-- Sends collected data to the Tuya IoT Cloud.
-- Provides syslog logging.
-- Runs as a background daemon service.
-
-## Components
-
-- `system_info` - router information collection.
-- `tuya-agent` - Tuya Cloud communication layer.
+- Automatic Tuya SDK download during build.
+- Router information collection through ubus.
+- Cloud communication with Tuya IoT platform.
+- Syslog support (`logread`).
+- VuCI API integration.
